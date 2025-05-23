@@ -1,14 +1,47 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAuthToken } from "@/services/api";
+import { getAuthToken, getUsers, createUser } from "@/services/api";
 
 //components
 import UserTable from "@/components/UserTable";
+import Popup from "@/components/Popup";
 
 export default function UsersPage() {
     const router = useRouter();
+    const [fetchData, setFetchData] = useState({});
+    const [loading, setLoading] = useState(false);
+
+    const refetchUsers = async () => {
+        try {
+            setLoading(true);
+            const response = await getUsers();
+            const data = await response.json();
+
+            if (!response.ok) {
+                setFetchData({
+                    error: data.message || "Failed to fetch users",
+                });
+                return;
+            }
+
+            setFetchData(data);
+        } catch (err) {
+            if (err instanceof Error) {
+                setFetchData({ error: err.message });
+            } else {
+                setFetchData({ error: "An unknown error occurred" });
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    //fetch users
+    useEffect(() => {
+        refetchUsers();
+    }, []);
 
     //check if user is logged in
     useEffect(() => {
@@ -18,10 +51,164 @@ export default function UsersPage() {
         }
     }, [router]);
 
+    const [notification, setNotification] = useState<{
+        message: string;
+        type: "success" | "error";
+    } | null>(null);
+
     return (
-        <div className=" flex flex-col items-center justify-center">
+        <div className=" flex flex-col items-center gap-4 justify-center">
             <h1 className="text-2xl font-bold my-4">Users</h1>
-            <UserTable />
+            <AddUserButton setNotification={setNotification} />
+            <UserTable
+                fetchData={fetchData}
+                refetchUsers={refetchUsers}
+                loading={loading}
+            />
+
+            {notification && (
+                <Popup show={true} onClose={() => setNotification(null)}>
+                    <div
+                        className={`min-w-sm bg-white dark:bg-[#292a2d] text-black dark:text-white border border-gray-200 dark:border-none rounded-lg p-4 cursor-auto ${
+                            notification.type === "success"
+                                ? "border-green-500"
+                                : "border-red-500"
+                        }`}
+                    >
+                        <p
+                            className={`text-lg ${
+                                notification.type === "success"
+                                    ? "text-green-500"
+                                    : "text-red-500"
+                            }`}
+                        >
+                            {notification.message}
+                        </p>
+                    </div>
+                </Popup>
+            )}
         </div>
     );
 }
+
+const AddUserButton = ({
+    setNotification,
+}: {
+    setNotification: (notification: {
+        message: string;
+        type: "success" | "error";
+    }) => void;
+}) => {
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const authToken = getAuthToken();
+    const authUser = authToken?.user;
+    const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
+    const [password, setPassword] = useState("");
+
+    const handleAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const payload = {
+            name,
+            email,
+            password,
+        };
+        try {
+            const response = await createUser(payload);
+            if (response.ok) {
+                setNotification({
+                    message: "User added successfully",
+                    type: "success",
+                });
+                setIsPopupOpen(false);
+                setEmail("");
+                setName("");
+                setPassword("");
+            } else {
+                setNotification({
+                    message: "Failed to add user",
+                    type: "error",
+                });
+            }
+        } catch (error) {
+            setNotification({
+                message: "An error occurred while adding user" + error,
+                type: "error",
+            });
+        }
+    };
+
+    return (
+        <>
+            <button
+                disabled={!authUser?.permission.includes("create_user")}
+                onClick={() => setIsPopupOpen(true)}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:hover:bg-blue-500 disabled:cursor-not-allowed"
+            >
+                Add User
+            </button>
+            {isPopupOpen && (
+                <Popup show={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
+                    <div className="min-w-sm bg-white dark:bg-[#292a2d] text-black dark:text-white border border-gray-200 dark:border-none rounded-lg p-4 cursor-auto">
+                        <>
+                            <h1 className="text-2xl font-bold">Add User</h1>
+                            <form
+                                onSubmit={handleAddUser}
+                                className="flex flex-col gap-4 mt-4"
+                            >
+                                <div className="flex flex-col gap-2">
+                                    <label htmlFor="name">Name</label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        value={name}
+                                        required
+                                        onChange={(e) =>
+                                            setName(e.target.value)
+                                        }
+                                        className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label htmlFor="email">Email</label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        value={email}
+                                        required
+                                        onChange={(e) =>
+                                            setEmail(e.target.value)
+                                        }
+                                        className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label htmlFor="password">Password</label>
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        value={password}
+                                        required
+                                        onChange={(e) =>
+                                            setPassword(e.target.value)
+                                        }
+                                        className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mt-4"
+                                >
+                                    Add User
+                                </button>
+                            </form>
+                        </>
+                    </div>
+                </Popup>
+            )}
+        </>
+    );
+};

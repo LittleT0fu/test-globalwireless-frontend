@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 
 //api
-import { getAuthToken, getUsers, deleteUser, updateUser } from "@/services/api";
+import { getAuthToken, deleteUser, updateUser } from "@/services/api";
 
 //components
 import Popup from "@/components/Popup";
@@ -19,42 +19,33 @@ interface User {
 }
 
 interface UserTableProps {
-    // เพิ่ม props ตามต้องการในอนาคต
+    fetchData: {
+        data?: User[] | null;
+        error?: string | null;
+        [key: string]: unknown; // รองรับข้อมูลอื่นๆ ที่อาจมีเพิ่มเติม
+    };
+    refetchUsers: () => void;
+    loading: boolean;
 }
 
-export default function UserTable({}: UserTableProps) {
-    const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+export default function UserTable({
+    fetchData,
+    refetchUsers,
+    loading,
+}: UserTableProps) {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [users, setUsers] = useState<User[]>([]);
+    const [error, setError] = useState<string>("");
 
-    const refetchUsers = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-
-            const response = await getUsers();
-            if (!response.ok) {
-                throw new Error("ไม่สามารถดึงข้อมูลผู้ใช้ได้");
-            }
-
-            const data = await response.json();
-            setUsers(data.data);
-        } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ"
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    //fetch users
     useEffect(() => {
-        refetchUsers();
-    }, []);
+        if (fetchData.data) {
+            setUsers(fetchData.data);
+            setError("");
+        } else if (fetchData.error) {
+            setError(fetchData.error);
+            setUsers([]);
+        }
+    }, [fetchData]);
 
     if (loading) {
         return <div className="text-center py-4">กำลังโหลด...</div>;
@@ -87,14 +78,31 @@ export default function UserTable({}: UserTableProps) {
                                     >
                                         email
                                     </th>
-                                    <th className={headerClassname} colSpan={2}>
-                                        role
+                                    <th className={headerClassname}>role</th>
+                                    <th className={headerClassname}>
+                                        <button
+                                            onClick={refetchUsers}
+                                            className=" hover:ring-blue-500 hover:ring-2 hover:ring-offset-4 rounded-md"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-4 w-4"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                            >
+                                                <path
+                                                    fillRule="evenodd"
+                                                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </button>
                                     </th>
                                     {/* เพิ่ม column ตามต้องการ */}
                                 </tr>
                             </thead>
                             <tbody className="bg-white dark:bg-[#292a2d] divide-y divide-gray-200 dark:divide-gray-600 cursor-pointer ">
-                                {users.map((user) => (
+                                {users.map((user: User) => (
                                     <RowTable
                                         key={user.id}
                                         user={user}
@@ -167,7 +175,6 @@ const UserPopup = ({
     const [editUser, setEditUser] = useState(user);
 
     const { user: authUser } = getAuthToken();
-    console.log(authUser.permission);
 
     const handleEdit = () => {
         if (authUser.permission.includes("edit_user")) {
@@ -175,8 +182,15 @@ const UserPopup = ({
         }
     };
     const handleSave = async () => {
-        await updateUser(editUser, user.id);
-        console.log(editUser);
+        if (!editUser.name || !editUser.email) {
+            return;
+        }
+
+        const response = await updateUser(editUser, user.id);
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.log(errorData);
+        }
         togglePopup(false); // ปิด popup หลังจากบันทึก
         setIsEdit(false);
         onUserChange();
@@ -207,6 +221,7 @@ const UserPopup = ({
                             type="text"
                             value={editUser.name}
                             className={detailsClassname}
+                            required
                             onChange={(e) =>
                                 setEditUser({
                                     ...editUser,
@@ -222,9 +237,10 @@ const UserPopup = ({
                     <p>Email :</p>
                     {isEdit ? (
                         <input
-                            type="text"
+                            type="email"
                             value={editUser.email}
                             className={detailsClassname}
+                            required
                             onChange={(e) =>
                                 setEditUser({
                                     ...editUser,
@@ -243,6 +259,7 @@ const UserPopup = ({
                             type="text"
                             value={editUser.role}
                             className={detailsClassname}
+                            required
                             onChange={(e) =>
                                 setEditUser({
                                     ...editUser,
@@ -308,12 +325,10 @@ const DeletePopup = ({
     const { user: authUser } = getAuthToken();
 
     const handleDelete = async () => {
-        console.log("delete", user.id);
-        let response;
         if (!authUser.permission.includes("delete_user")) {
             return;
         }
-        response = await deleteUser(user.id);
+        const response = await deleteUser(user.id);
         if (!response.ok) {
             const errorData = await response.json();
             console.log(errorData);

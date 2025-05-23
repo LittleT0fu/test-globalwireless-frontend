@@ -33,7 +33,12 @@ export const getUsers = async () => {
     });
 };
 
-export const createUser = async (token: string, payload: any) => {
+export const createUser = async (payload: {
+    name: string;
+    email: string;
+    password: string;
+}) => {
+    const { token } = getAuthToken();
     return await fetch(`${API_URL}/users`, {
         method: "POST",
         headers: {
@@ -44,9 +49,9 @@ export const createUser = async (token: string, payload: any) => {
     });
 };
 
-export const deleteUser = async (payload: any) => {
+export const deleteUser = async (id: string) => {
     const { token } = getAuthToken();
-    return await fetch(`${API_URL}/users/${payload}`, {
+    return await fetch(`${API_URL}/users/${id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
@@ -55,7 +60,14 @@ export const deleteUser = async (payload: any) => {
     });
 };
 
-export const updateUser = async (payload: any, id: string) => {
+export const updateUser = async (
+    payload: {
+        name: string;
+        email: string;
+        role: string;
+    },
+    id: string
+) => {
     const { token } = getAuthToken();
     return await fetch(`${API_URL}/users/${id}`, {
         method: "PATCH",
