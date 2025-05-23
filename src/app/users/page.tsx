@@ -7,6 +7,7 @@ import { getAuthToken, getUsers, createUser } from "@/services/api";
 //components
 import UserTable from "@/components/UserTable";
 import Popup from "@/components/Popup";
+import router from "next/router";
 
 export default function UsersPage() {
     const router = useRouter();
@@ -152,15 +153,28 @@ const AddUserButton = ({
         }
     };
 
+    const logout = () => {
+        localStorage.removeItem("auth_token");
+        router.push("/");
+    };
+
     return (
         <>
-            <button
-                disabled={isDisabled}
-                onClick={() => setIsPopupOpen(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:hover:bg-blue-500 disabled:cursor-not-allowed"
-            >
-                Add User
-            </button>
+            <div className="flex gap-4">
+                <button
+                    disabled={isDisabled}
+                    onClick={() => setIsPopupOpen(true)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:hover:bg-blue-500 disabled:cursor-not-allowed"
+                >
+                    Add User
+                </button>
+                <button
+                    onClick={logout}
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md"
+                >
+                    Logout
+                </button>
+            </div>
             {isPopupOpen && (
                 <Popup show={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
                     <div className="min-w-sm bg-white dark:bg-[#292a2d] text-black dark:text-white border border-gray-200 dark:border-none rounded-lg p-4 cursor-auto">

@@ -126,7 +126,7 @@ export default function Login() {
             setPopup({
                 ...popup,
                 show: true,
-                message: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ" + error,
+                message: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ " + error,
                 type: "error",
             });
         }
