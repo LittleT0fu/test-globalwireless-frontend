@@ -110,6 +110,7 @@ const AddUserButton = ({
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
+    const [role, setRole] = useState("");
 
     useEffect(() => {
         const hasPermission =
@@ -123,6 +124,7 @@ const AddUserButton = ({
             name,
             email,
             password,
+            role,
         };
         try {
             const response = await createUser(payload);
@@ -202,6 +204,18 @@ const AddUserButton = ({
                                     onChange={(e) =>
                                         setPassword(e.target.value)
                                     }
+                                    className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label htmlFor="role">Role</label>
+                                <input
+                                    type="text"
+                                    id="role"
+                                    name="role"
+                                    value={role}
+                                    required
+                                    onChange={(e) => setRole(e.target.value)}
                                     className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
                                 />
                             </div>

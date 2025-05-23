@@ -37,6 +37,7 @@ export const createUser = async (payload: {
     name: string;
     email: string;
     password: string;
+    role: string;
 }) => {
     const { token } = getAuthToken();
     return await fetch(`${API_URL}/users`, {
@@ -76,5 +77,19 @@ export const updateUser = async (
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
+    });
+};
+
+export const register = async (payload: {
+    name: string;
+    email: string;
+    password: string;
+}) => {
+    return await fetch(`${API_URL}/users/register`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+            "Content-Type": "application/json",
+        },
     });
 };
