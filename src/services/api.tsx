@@ -55,9 +55,9 @@ export const deleteUser = async (payload: any) => {
     });
 };
 
-export const updateUser = async (payload: any) => {
+export const updateUser = async (payload: any, id: string) => {
     const { token } = getAuthToken();
-    return await fetch(`${API_URL}/users/${payload}`, {
+    return await fetch(`${API_URL}/users/${id}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",

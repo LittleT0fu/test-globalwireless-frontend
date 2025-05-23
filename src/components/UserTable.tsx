@@ -8,6 +8,7 @@ import { getAuthToken, getUsers, deleteUser, updateUser } from "@/services/api";
 
 //components
 import Popup from "@/components/Popup";
+import NotiPopup from "@/components/NotiPopup";
 
 interface User {
     id: string;
@@ -114,6 +115,7 @@ export default function UserTable({}: UserTableProps) {
                             onUserChange={onUserChange}
                         />
                     )}
+                    <NotiPopup />
                 </>
             )}
         </div>
@@ -172,30 +174,12 @@ const UserPopup = ({
             setIsEdit(true);
         }
     };
-
-    const handleDelete = async () => {
-        console.log("delete", user.id);
-        let response;
-        if (!authUser.permission.includes("delete_user")) {
-            return;
-        }
-        response = await deleteUser(user.id);
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.log(errorData);
-        }
-
-        const data = await response?.json();
-        console.log(data);
-        // ลบผู้ใช้ที่มี id ตรงกันออกจากรายการ
-        onUserChange();
-        togglePopup(false); // ปิด popup หลังจากลบ
-    };
-
     const handleSave = async () => {
-        await updateUser(editUser);
+        await updateUser(editUser, user.id);
+        console.log(editUser);
         togglePopup(false); // ปิด popup หลังจากบันทึก
         setIsEdit(false);
+        onUserChange();
     };
 
     const handleCancle = () => {
@@ -276,13 +260,13 @@ const UserPopup = ({
                 {isEdit ? (
                     <>
                         <button
-                            onClick={() => setIsEdit(false)}
+                            onClick={() => handleSave()}
                             className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
                         >
                             Save
                         </button>
                         <button
-                            onClick={() => setIsEdit(false)}
+                            onClick={() => handleCancle()}
                             className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
                         >
                             Cancle
@@ -291,8 +275,11 @@ const UserPopup = ({
                 ) : (
                     <>
                         <button
+                            disabled={
+                                !authUser.permission.includes("edit_user")
+                            }
                             onClick={handleEdit}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:hover:bg-blue-500 disabled:cursor-not-allowed"
                         >
                             Edit
                         </button>
@@ -359,8 +346,9 @@ const DeletePopup = ({
         </div>
     ) : (
         <button
+            disabled={!authUser.permission.includes("delete_user")}
             onClick={() => setIsDelete(true)}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md"
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:hover:bg-red-500 disabled:cursor-not-allowed"
         >
             Delete
         </button>
