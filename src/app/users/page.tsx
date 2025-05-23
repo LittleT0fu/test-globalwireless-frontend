@@ -59,7 +59,10 @@ export default function UsersPage() {
     return (
         <div className=" flex flex-col items-center gap-4 justify-center">
             <h1 className="text-2xl font-bold my-4">Users</h1>
-            <AddUserButton setNotification={setNotification} />
+            <AddUserButton
+                setNotification={setNotification}
+                refetchUsers={refetchUsers}
+            />
             <UserTable
                 fetchData={fetchData}
                 refetchUsers={refetchUsers}
@@ -93,11 +96,13 @@ export default function UsersPage() {
 
 const AddUserButton = ({
     setNotification,
+    refetchUsers,
 }: {
     setNotification: (notification: {
         message: string;
         type: "success" | "error";
     }) => void;
+    refetchUsers: () => Promise<void>;
 }) => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [isDisabled, setIsDisabled] = useState(true);
@@ -122,6 +127,7 @@ const AddUserButton = ({
         try {
             const response = await createUser(payload);
             if (response.ok) {
+                refetchUsers();
                 setNotification({
                     message: "User added successfully",
                     type: "success",
