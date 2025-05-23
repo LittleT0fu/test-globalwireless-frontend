@@ -12,8 +12,36 @@ export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [popup, setPopup] = useState({ show: false, message: "", type: "" });
+    const [popup, setPopup] = useState({
+        show: false,
+        message: "",
+        type: "",
+        button: [
+            {
+                label: "ตกลง",
+                onClick: () => {
+                    closePopup();
+                },
+            },
+        ],
+    });
     const router = useRouter();
+
+    const closePopup = () => {
+        setPopup({
+            show: false,
+            message: "",
+            type: "",
+            button: [
+                {
+                    label: "ตกลง",
+                    onClick: () => {
+                        closePopup();
+                    },
+                },
+            ],
+        });
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,6 +50,7 @@ export default function Login() {
         try {
             if (!email && !password) {
                 setPopup({
+                    ...popup,
                     show: true,
                     message: "กรุณากรอกอีเมลและรหัสผ่าน",
                     type: "error",
@@ -31,6 +60,7 @@ export default function Login() {
 
             if (!email) {
                 setPopup({
+                    ...popup,
                     show: true,
                     message: "กรุณากรอกอีเมล",
                     type: "error",
@@ -40,6 +70,7 @@ export default function Login() {
 
             if (!password) {
                 setPopup({
+                    ...popup,
                     show: true,
                     message: "กรุณากรอกรหัสผ่าน",
                     type: "error",
@@ -52,6 +83,7 @@ export default function Login() {
             if (!response.ok) {
                 const errorData = await response.json();
                 setPopup({
+                    ...popup,
                     show: true,
                     message:
                         errorData.message || "เกิดข้อผิดพลาดในการเข้าสู่ระบบ",
@@ -75,40 +107,36 @@ export default function Login() {
             });
 
             setPopup({
+                ...popup,
                 show: true,
                 message: "เข้าสู่ระบบสำเร็จ",
                 type: "success",
+                button: [
+                    {
+                        label: "ตกลง",
+                        onClick: () => {
+                            router.push("/users");
+                        },
+                    },
+                ],
             });
 
-            // ซ่อน popup หลังจาก 3 วินาที
-            setTimeout(() => {
-                setPopup({ show: false, message: "", type: "" });
-
-                //todo: redirect to user page
-            }, 3000);
+            //todo: redirect to user page
         } catch (error) {
             setPopup({
+                ...popup,
                 show: true,
                 message: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ" + error,
                 type: "error",
             });
-            // setTimeout(
-            //     () => setPopup({ show: false, message: "", type: "" }),
-            //     3000
-            // );
         }
     };
 
     return (
         <>
             {popup.show && (
-                <Popup
-                    show={popup.show}
-                    onClose={() =>
-                        setPopup({ show: false, message: "", type: "" })
-                    }
-                >
-                    <div className="text-center min-w-64 mx-4 text-black bg-white dark:bg-[#21252b] dark:text-white p-8 rounded-lg">
+                <Popup show={popup.show} onClose={() => closePopup()}>
+                    <div className="text-center min-w-64 mx-4 text-black bg-white border border-gray-300 dark:bg-[#21252b] dark:text-white p-8 rounded-lg drop-shadow-lg">
                         {popup.type === "success" ? (
                             <svg
                                 className="mx-auto h-12 w-12 text-green-500 mb-4"
@@ -141,20 +169,21 @@ export default function Login() {
                             </svg>
                         )}
                         <p className="">{popup.message}</p>
-                        <button
-                            onClick={() =>
-                                setPopup({ show: false, message: "", type: "" })
-                            }
-                            className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                            ตกลง
-                        </button>
+                        {popup.button.map((button) => (
+                            <button
+                                key={button.label}
+                                onClick={button.onClick}
+                                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                                {button.label}
+                            </button>
+                        ))}
                     </div>
                 </Popup>
             )}
 
             {/* container */}
-            <div className="w-full max-w-md p-8 max-sm:p-4 border text-black border-gray-300 dark:bg-[#21252b] dark:text-white dark:border-none rounded-lg shadow-md">
+            <div className="w-full max-w-md p-8 max-sm:p-4 border text-black border-gray-300  dark:bg-[#21252b] dark:text-white dark:border-none rounded-lg shadow-md">
                 <h1 className="text-2xl font-bold text-center  mb-6">Login</h1>
                 {/* form */}
                 <form className="space-y-4" onSubmit={handleSubmit}>

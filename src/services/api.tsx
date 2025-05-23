@@ -22,7 +22,8 @@ export const login = async (email: string, password: string) => {
     });
 };
 
-export const getUser = async (token: string) => {
+export const getUsers = async () => {
+    const { token } = getAuthToken();
     return await fetch(`${API_URL}/users`, {
         method: "GET",
         headers: {
@@ -43,7 +44,8 @@ export const createUser = async (token: string, payload: any) => {
     });
 };
 
-export const deleteUser = async (token: string, payload: any) => {
+export const deleteUser = async (payload: any) => {
+    const { token } = getAuthToken();
     return await fetch(`${API_URL}/users`, {
         method: "DELETE",
         headers: {
@@ -54,9 +56,10 @@ export const deleteUser = async (token: string, payload: any) => {
     });
 };
 
-export const updateUser = async (token: string, payload: any) => {
+export const updateUser = async (payload: any) => {
+    const { token } = getAuthToken();
     return await fetch(`${API_URL}/users`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
