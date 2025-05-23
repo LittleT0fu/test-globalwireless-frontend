@@ -100,11 +100,17 @@ const AddUserButton = ({
     }) => void;
 }) => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const authToken = getAuthToken();
-    const authUser = authToken?.user;
+    const [isDisabled, setIsDisabled] = useState(true);
+    const auth_token = getAuthToken();
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
+
+    useEffect(() => {
+        const hasPermission =
+            auth_token?.user?.permission?.includes("create_user") ?? false;
+        setIsDisabled(!hasPermission);
+    }, [auth_token]);
 
     const handleAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -141,7 +147,7 @@ const AddUserButton = ({
     return (
         <>
             <button
-                disabled={!authUser?.permission.includes("create_user")}
+                disabled={isDisabled}
                 onClick={() => setIsPopupOpen(true)}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:hover:bg-blue-500 disabled:cursor-not-allowed"
             >
@@ -150,62 +156,56 @@ const AddUserButton = ({
             {isPopupOpen && (
                 <Popup show={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
                     <div className="min-w-sm bg-white dark:bg-[#292a2d] text-black dark:text-white border border-gray-200 dark:border-none rounded-lg p-4 cursor-auto">
-                        <>
-                            <h1 className="text-2xl font-bold">Add User</h1>
-                            <form
-                                onSubmit={handleAddUser}
-                                className="flex flex-col gap-4 mt-4"
+                        <h1 className="text-2xl font-bold">Add User</h1>
+                        <form
+                            onSubmit={handleAddUser}
+                            className="flex flex-col gap-4 mt-4"
+                        >
+                            <div className="flex flex-col gap-2">
+                                <label htmlFor="name">Name</label>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    value={name}
+                                    required
+                                    onChange={(e) => setName(e.target.value)}
+                                    className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label htmlFor="email">Email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    value={email}
+                                    required
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label htmlFor="password">Password</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    value={password}
+                                    required
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                    className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mt-4"
                             >
-                                <div className="flex flex-col gap-2">
-                                    <label htmlFor="name">Name</label>
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        name="name"
-                                        value={name}
-                                        required
-                                        onChange={(e) =>
-                                            setName(e.target.value)
-                                        }
-                                        className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label htmlFor="email">Email</label>
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        name="email"
-                                        value={email}
-                                        required
-                                        onChange={(e) =>
-                                            setEmail(e.target.value)
-                                        }
-                                        className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label htmlFor="password">Password</label>
-                                    <input
-                                        type="password"
-                                        id="password"
-                                        name="password"
-                                        value={password}
-                                        required
-                                        onChange={(e) =>
-                                            setPassword(e.target.value)
-                                        }
-                                        className="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-[#21252b] text-black dark:text-white"
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mt-4"
-                                >
-                                    Add User
-                                </button>
-                            </form>
-                        </>
+                                Add User
+                            </button>
+                        </form>
                     </div>
                 </Popup>
             )}

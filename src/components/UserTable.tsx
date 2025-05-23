@@ -8,7 +8,6 @@ import { getAuthToken, deleteUser, updateUser } from "@/services/api";
 
 //components
 import Popup from "@/components/Popup";
-import NotiPopup from "@/components/NotiPopup";
 
 interface User {
     id: string;
@@ -123,7 +122,6 @@ export default function UserTable({
                             onUserChange={onUserChange}
                         />
                     )}
-                    <NotiPopup />
                 </>
             )}
         </div>
