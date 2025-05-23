@@ -13,14 +13,14 @@ export default function Login() {
         try {
             const response = await fetch("http://localhost:3001/users/login", {
                 method: "POST",
+                body: JSON.stringify({ email, password }),
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, password }),
             });
 
             if (!response.ok) {
-                throw new Error("การเข้าสู่ระบบล้มเหลว");
+                throw new Error("การเข้าสู่ระบบล้มเหลว" + response.status);
             }
 
             const data = await response.json();
@@ -44,6 +44,8 @@ export default function Login() {
                     <input
                         type="email"
                         id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:bg-[#282c34] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                         placeholder="Enter your email"
                     />
@@ -58,6 +60,8 @@ export default function Login() {
                     <input
                         type="password"
                         id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:bg-[#282c34] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                         placeholder="Enter your password"
                     />
