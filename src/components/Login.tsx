@@ -4,10 +4,14 @@ import { useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import Popup from "./Popup";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
+import { login } from "@/services/api";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [popup, setPopup] = useState({ show: false, message: "", type: "" });
     const router = useRouter();
 
@@ -43,16 +47,7 @@ export default function Login() {
                 return;
             }
 
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/users/login`,
-                {
-                    method: "POST",
-                    body: JSON.stringify({ email, password }),
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            const response = await login(email, password);
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -158,9 +153,12 @@ export default function Login() {
                 </Popup>
             )}
 
+            {/* container */}
             <div className="w-full max-w-md p-8 max-sm:p-4 border text-black border-gray-300 dark:bg-[#21252b] dark:text-white dark:border-none rounded-lg shadow-md">
                 <h1 className="text-2xl font-bold text-center  mb-6">Login</h1>
+                {/* form */}
                 <form className="space-y-4" onSubmit={handleSubmit}>
+                    {/* email */}
                     <div>
                         <label
                             htmlFor="email"
@@ -177,6 +175,8 @@ export default function Login() {
                             placeholder="Enter your email"
                         />
                     </div>
+
+                    {/* password */}
                     <div>
                         <label
                             htmlFor="password"
@@ -184,14 +184,27 @@ export default function Login() {
                         >
                             Password
                         </label>
-                        <input
-                            type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:bg-[#282c34] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                            placeholder="Enter your password"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                id="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:bg-[#282c34] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="Enter your password"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                            >
+                                {showPassword ? (
+                                    <FaEyeSlash className="h-5 w-5 text-gray-400" />
+                                ) : (
+                                    <FaEye className="h-5 w-5 text-gray-400" />
+                                )}
+                            </button>
+                        </div>
                     </div>
                     <button
                         type="submit"

@@ -22,7 +22,7 @@ function Popup({ show, onClose, children }: PopupProps) {
     if (!show) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center rounded-lg shadow-lg text-black">
+        <div className="fixed z-50 inset-0 flex items-center justify-center rounded-lg shadow-lg text-black">
             {/* Dark Overlay */}
             <div
                 className="absolute inset-0 bg-white/20  backdrop-blur-md"
