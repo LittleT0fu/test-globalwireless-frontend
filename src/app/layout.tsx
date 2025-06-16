@@ -20,13 +20,6 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="th">
-            <head>
-                {/* content security policy */}
-                <meta
-                    httpEquiv="Content-Security-Policy"
-                    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
-                />
-            </head>
             <body
                 className={`${sarabun.variable} font-sans antialiased text-sm`}
             >

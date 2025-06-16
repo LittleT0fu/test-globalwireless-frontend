@@ -67,5 +67,7 @@ XSS protection
 
 -   Input Sanitization -> dompurify
 -   Content Security Policy (CSP) -> add meta data to head to prevent thirdparty scritp load
--   HttpOnly Cookies
 -   Output Encoding
+
+
+HttpOnly Cookies

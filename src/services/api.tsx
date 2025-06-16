@@ -1,6 +1,29 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 import Cookies from "js-cookie";
 
+// เพิ่มฟังก์ชันสำหรับสร้าง CSRF token
+const generateCSRFToken = () => {
+    return (
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15)
+    );
+};
+
+// เก็บ CSRF token ใน cookie
+const setCSRFToken = () => {
+    const token = generateCSRFToken();
+    Cookies.set("csrf_token", token, {
+        secure: true,
+        sameSite: "strict",
+    });
+    return token;
+};
+
+// ดึง CSRF token จาก cookie
+const getCSRFToken = () => {
+    return Cookies.get("csrf_token");
+};
+
 export const getAuthToken = () => {
     const authCookie = Cookies.get("auth_token");
     if (!authCookie) return null;
@@ -13,22 +36,26 @@ export const getAuthToken = () => {
 };
 
 export const login = async (email: string, password: string) => {
+    const csrfToken = setCSRFToken();
     return await fetch(`${API_URL}/users/login`, {
         method: "POST",
         body: JSON.stringify({ email, password }),
         headers: {
             "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken,
         },
     });
 };
 
 export const getUsers = async () => {
     const { token } = getAuthToken();
+    const csrfToken = getCSRFToken();
     return await fetch(`${API_URL}/users`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            "X-CSRF-Token": csrfToken,
         },
     });
 };
@@ -40,11 +67,13 @@ export const createUser = async (payload: {
     role: string;
 }) => {
     const { token } = getAuthToken();
+    const csrfToken = getCSRFToken();
     return await fetch(`${API_URL}/users`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            "X-CSRF-Token": csrfToken,
         },
         body: JSON.stringify(payload),
     });
@@ -52,11 +81,13 @@ export const createUser = async (payload: {
 
 export const deleteUser = async (id: string) => {
     const { token } = getAuthToken();
+    const csrfToken = getCSRFToken();
     return await fetch(`${API_URL}/users/${id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            "X-CSRF-Token": csrfToken,
         },
     });
 };
