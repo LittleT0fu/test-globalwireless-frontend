@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAuthToken, getUsers, createUser } from "@/services/api";
+import DOMPurify from "dompurify";
 
 //components
 import UserTable from "@/components/UserTable";
@@ -121,14 +122,16 @@ const AddUserButton = ({
 
     const handleAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const payload = {
-            name,
-            email,
-            password,
-            role,
+        // Sanitize input data
+        const sanitizedPayload = {
+            name: DOMPurify.sanitize(name),
+            email: DOMPurify.sanitize(email),
+            password: DOMPurify.sanitize(password),
+            role: DOMPurify.sanitize(role),
         };
+
         try {
-            const response = await createUser(payload);
+            const response = await createUser(sanitizedPayload);
             if (response.ok) {
                 refetchUsers();
                 setNotification({

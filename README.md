@@ -60,3 +60,12 @@ pnpm dev
 วิธีที่ง่ายที่สุดในการ deploy คือการใช้ [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
 
 ดูรายละเอียดเพิ่มเติมได้ที่ [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)
+
+## secure
+
+XSS protection
+
+-   Input Sanitization -> dompurify
+-   Content Security Policy (CSP) -> add meta data to head to prevent thirdparty scritp load
+-   HttpOnly Cookies
+-   Output Encoding

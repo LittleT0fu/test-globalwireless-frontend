@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useState } from "react";
+import { encode } from "html-entities";
 
 //api
 import { getAuthToken, deleteUser, updateUser } from "@/services/api";
@@ -137,11 +138,11 @@ function RowTable({ user, onClick }: { user: User; onClick: () => void }) {
             className=" hover:bg-gray-100 dark:hover:bg-zinc-800"
             onClick={onClick}
         >
-            <td className={bodyClassname}>{user.name}</td>
+            <td className={bodyClassname}>{encode(user.name)}</td>
             <td className={`${bodyClassname} hidden xs:table-cell`}>
-                {user.email}
+                {encode(user.email)}
             </td>
-            <td className={bodyClassname}>{user.role}</td>
+            <td className={bodyClassname}>{encode(user.role)}</td>
             <td className={bodyClassname}>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -228,7 +229,7 @@ const UserPopup = ({
                             }
                         />
                     ) : (
-                        <p className={detailsClassname}>{user.name}</p>
+                        <p className={detailsClassname}>{encode(user.name)}</p>
                     )}
                 </div>
                 <div className="flex flex-col gap-2">
@@ -247,7 +248,7 @@ const UserPopup = ({
                             }
                         />
                     ) : (
-                        <p className={detailsClassname}>{user.email}</p>
+                        <p className={detailsClassname}>{encode(user.email)}</p>
                     )}
                 </div>
                 <div className="flex flex-col gap-2">
@@ -266,7 +267,7 @@ const UserPopup = ({
                             }
                         />
                     ) : (
-                        <p className={detailsClassname}>{user.role}</p>
+                        <p className={detailsClassname}>{encode(user.role)}</p>
                     )}
                 </div>
                 {/* button section */}
