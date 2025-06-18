@@ -12,6 +12,8 @@ export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [isCooldown, setIsCooldown] = useState(false);
+    const [cooldownTime, setCooldownTime] = useState(0);
     const [popup, setPopup] = useState({
         show: false,
         message: "",
@@ -45,6 +47,17 @@ export default function Login() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (isCooldown) {
+            setPopup({
+                ...popup,
+                show: true,
+                message: `กรุณารอ ${cooldownTime} วินาที ก่อนที่จะลองเข้าสู่ระบบอีกครั้ง`,
+                type: "error",
+            });
+            return;
+        }
+
         // TODO: Implement login logic
         console.log("กำลังเข้าสู่ระบบ...");
         try {
@@ -82,6 +95,20 @@ export default function Login() {
 
             if (!response.ok) {
                 const errorData = await response.json();
+                // เริ่ม cooldown เมื่อ login ไม่สำเร็จ
+                setIsCooldown(true);
+                setCooldownTime(5);
+                const cooldownInterval = setInterval(() => {
+                    setCooldownTime((prev) => {
+                        if (prev <= 1) {
+                            clearInterval(cooldownInterval);
+                            setIsCooldown(false);
+                            return 0;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
+
                 setPopup({
                     ...popup,
                     show: true,
