@@ -7,7 +7,7 @@
 ก่อนที่จะรันโปรเจคนี้ ต้องแน่ใจว่าได้:
 
 1. รัน Backend Project ก่อน
-2. เปิด MAMP และรัน MySQL Server
+2. เปิด MAMP และรัน MySQL Server (if not run backend via docker)
 
 ## การตั้งค่า Environment Variables
 
@@ -21,6 +21,8 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 
 ## การติดตั้ง
 
+### วิธีที่ 1: ติดตั้งแบบปกติ
+
 1. ติดตั้ง dependencies:
 
 ```bash
@@ -31,7 +33,55 @@ yarn install
 pnpm install
 ```
 
-## การรันโปรเจค
+### วิธีที่ 2: ใช้ Docker (แนะนำสำหรับอุปกรณ์ใหม่)
+
+#### ความต้องการเบื้องต้น
+
+-   ติดตั้ง [Docker](https://docs.docker.com/get-docker/) บนเครื่องของคุณ
+-   ติดตั้ง [Docker Compose](https://docs.docker.com/compose/install/) (มักจะมาพร้อมกับ Docker Desktop)
+
+#### ขั้นตอนการรันด้วย Docker
+
+1. **Clone โปรเจกต์:**
+
+```bash
+git clone <repository-url>
+cd globalwireless-frontend
+```
+
+2. **รันด้วย Docker Compose:**
+
+```bash
+# รัน development server
+docker-compose up app-dev
+
+# หรือรันใน background
+docker-compose up -d app-dev
+```
+
+3. **เปิดเบราว์เซอร์และไปที่ [http://localhost:3001](http://localhost:3001)**
+
+#### คำสั่ง Docker ที่ใช้บ่อย
+
+```bash
+# หยุดการทำงาน
+docker-compose down
+
+# ดู logs
+docker-compose logs app-dev
+
+# รีสตาร์ท service
+docker-compose restart app-dev
+
+```
+
+#### การแก้ไขปัญหา
+
+-   **หากพอร์ต 3001 ถูกใช้งานแล้ว:** เปลี่ยนพอร์ตใน `docker-compose.yml`
+-   **หากต้องการ rebuild:** รัน `docker-compose build app-dev`
+-   **หากต้องการลบ cache:** รัน `docker-compose down --volumes`
+
+## การรันโปรเจค (วิธีปกติ)
 
 1. รัน development server:
 
@@ -49,25 +99,23 @@ pnpm dev
 
 -   แก้ไขไฟล์ `app/page.tsx` เพื่อเริ่มการพัฒนา
 -   หน้าเว็บจะอัพเดทอัตโนมัติเมื่อมีการแก้ไขไฟล์
+-   **เมื่อใช้ Docker:** การเปลี่ยนแปลงจะ reflect ทันทีเนื่องจาก volume mounting
 
 ## เทคโนโลยีที่ใช้
 
 -   [Next.js](https://nextjs.org) - React framework
 -   [Geist Font](https://vercel.com/font) - ฟอนต์ที่ใช้ในโปรเจค
+-   [Docker](https://www.docker.com/) - Containerization platform
 
-## การ Deploy
+```
 
-วิธีที่ง่ายที่สุดในการ deploy คือการใช้ [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
-
-ดูรายละเอียดเพิ่มเติมได้ที่ [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)
-
-## secure
+## Security
 
 XSS protection
 
 -   Input Sanitization -> dompurify
--   Content Security Policy (CSP) -> add meta data to head to prevent thirdparty scritp load
+-   Content Security Policy (CSP) -> add meta data to head to prevent thirdparty script load
 -   Output Encoding
 
-
 HttpOnly Cookies
+```
