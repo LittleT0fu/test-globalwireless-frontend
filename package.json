@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:restart": "docker-compose restart",
+    "docker:build": "docker-compose build",
+    "docker:clean": "docker-compose down --rmi all --volumes --remove-orphans",
+    "docker:reset": "docker-compose down --rmi all --volumes --remove-orphans && docker-compose build --no-cache && docker-compose up"
   },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",

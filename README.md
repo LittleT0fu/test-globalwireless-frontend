@@ -75,6 +75,22 @@ docker-compose restart app-dev
 
 ```
 
+#### การใช้ NPM Scripts (แนะนำ)
+
+เพื่อความสะดวก คุณสามารถใช้ npm scripts ที่เตรียมไว้แล้ว:
+
+```bash
+# การจัดการทั่วไป
+npm run docker:up               # รันทั้ง development และ production
+npm run docker:down             # หยุดการทำงานทั้งหมด
+npm run docker:restart          # รีสตาร์ท services
+npm run docker:build            # build images
+npm run docker:clean            # ลบ images, containers และ volumes ทั้งหมด
+
+# การรีเซ็ต (แนะนำเมื่อมีปัญหา)
+npm run docker:reset            # รีเซ็ตทั้งหมด: ลบ cache, build ใหม่, และรัน
+```
+
 #### การแก้ไขปัญหา
 
 -   **หากพอร์ต 3001 ถูกใช้งานแล้ว:** เปลี่ยนพอร์ตใน `docker-compose.yml`
@@ -107,8 +123,6 @@ pnpm dev
 -   [Geist Font](https://vercel.com/font) - ฟอนต์ที่ใช้ในโปรเจค
 -   [Docker](https://www.docker.com/) - Containerization platform
 
-```
-
 ## Security
 
 XSS protection
@@ -118,4 +132,7 @@ XSS protection
 -   Output Encoding
 
 HttpOnly Cookies
+
+```
+
 ```
