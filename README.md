@@ -50,6 +50,8 @@ cd globalwireless-frontend
 
 2. **รันด้วย Docker Compose:**
 
+เปิดโปรแกรม Doker Desktop
+
 การใช้ NPM Scripts (แนะนำ)
 
 เพื่อความสะดวก คุณสามารถใช้ npm scripts ที่เตรียมไว้แล้ว:
