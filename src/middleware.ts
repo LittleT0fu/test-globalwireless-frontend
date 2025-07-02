@@ -7,10 +7,10 @@ export function middleware(request: NextRequest) {
   // ป้องกัน Clickjacking
   response.headers.set('X-Frame-Options', 'DENY')
   
-  // เพิ่ม Content-Security-Policy header
+  // เพิ่ม Content-Security-Policy header ที่อนุญาตให้เชื่อมต่อกับ API
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; frame-ancestors 'none'"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https: http:; frame-ancestors 'none'"
   )
 
   return response
