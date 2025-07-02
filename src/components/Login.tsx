@@ -58,7 +58,6 @@ export default function Login() {
             return;
         }
 
-        // TODO: Implement login logic
         console.log("กำลังเข้าสู่ระบบ...");
         try {
             if (!email && !password) {

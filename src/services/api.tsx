@@ -31,6 +31,55 @@ const getCSRFToken = () => {
     return token;
 };
 
+// ================================ ERROR HANDLING ================================
+
+// ฟังก์ชันสำหรับจัดการ connection errors
+const handleConnectionError = (error: any) => {
+    console.error("Connection error:", error);
+
+    // จัดการ ERR_CONNECTION_REFUSED
+    if (
+        error.message?.includes("ERR_CONNECTION_REFUSED") ||
+        error.message?.includes("fetch") ||
+        error.message?.includes("Failed to fetch")
+    ) {
+        return {
+            ok: false,
+            status: 0,
+            statusText: "CONNECTION_REFUSED",
+            json: async () => ({
+                message:
+                    "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบว่าเซิร์ฟเวอร์กำลังทำงานอยู่",
+                error: "CONNECTION_REFUSED",
+            }),
+        };
+    }
+
+    // จัดการ network errors อื่นๆ
+    if (error.name === "TypeError") {
+        return {
+            ok: false,
+            status: 0,
+            statusText: "NETWORK_ERROR",
+            json: async () => ({
+                message:
+                    "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต",
+                error: "NETWORK_ERROR",
+            }),
+        };
+    }
+
+    return {
+        ok: false,
+        status: 0,
+        statusText: "UNKNOWN_ERROR",
+        json: async () => ({
+            message: "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ กรุณาลองใหม่อีกครั้ง",
+            error: "UNKNOWN_ERROR",
+        }),
+    };
+};
+
 // ================================ API ================================
 
 export const getAuthToken = () => {
@@ -46,27 +95,35 @@ export const getAuthToken = () => {
 
 export const login = async (email: string, password: string) => {
     const csrfToken = setCSRFToken();
-    return await fetch(`${API_URL}/users/login`, {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": csrfToken,
-        },
-    });
+    try {
+        return await fetch(`${API_URL}/users/login`, {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": csrfToken,
+            },
+        });
+    } catch (error) {
+        return handleConnectionError(error);
+    }
 };
 
 export const getUsers = async () => {
     const { token } = getAuthToken();
     const csrfToken = getCSRFToken();
-    return await fetch(`${API_URL}/users`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            "X-CSRF-Token": csrfToken,
-        },
-    });
+    try {
+        return await fetch(`${API_URL}/users`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+                "X-CSRF-Token": csrfToken,
+            },
+        });
+    } catch (error) {
+        return handleConnectionError(error);
+    }
 };
 
 export const createUser = async (payload: {
@@ -77,28 +134,36 @@ export const createUser = async (payload: {
 }) => {
     const { token } = getAuthToken();
     const csrfToken = getCSRFToken();
-    return await fetch(`${API_URL}/users`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            "X-CSRF-Token": csrfToken,
-        },
-        body: JSON.stringify(payload),
-    });
+    try {
+        return await fetch(`${API_URL}/users`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+                "X-CSRF-Token": csrfToken,
+            },
+            body: JSON.stringify(payload),
+        });
+    } catch (error) {
+        return handleConnectionError(error);
+    }
 };
 
 export const deleteUser = async (id: string) => {
     const { token } = getAuthToken();
     const csrfToken = getCSRFToken();
-    return await fetch(`${API_URL}/users/${id}`, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            "X-CSRF-Token": csrfToken,
-        },
-    });
+    try {
+        return await fetch(`${API_URL}/users/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+                "X-CSRF-Token": csrfToken,
+            },
+        });
+    } catch (error) {
+        return handleConnectionError(error);
+    }
 };
 
 export const updateUser = async (
@@ -110,14 +175,18 @@ export const updateUser = async (
     id: string
 ) => {
     const { token } = getAuthToken();
-    return await fetch(`${API_URL}/users/${id}`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-    });
+    try {
+        return await fetch(`${API_URL}/users/${id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+        });
+    } catch (error) {
+        return handleConnectionError(error);
+    }
 };
 
 export const register = async (payload: {
@@ -125,11 +194,15 @@ export const register = async (payload: {
     email: string;
     password: string;
 }) => {
-    return await fetch(`${API_URL}/users/register`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
+    try {
+        return await fetch(`${API_URL}/users/register`, {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+    } catch (error) {
+        return handleConnectionError(error);
+    }
 };
