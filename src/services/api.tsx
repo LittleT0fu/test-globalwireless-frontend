@@ -1,6 +1,8 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 import Cookies from "js-cookie";
 
+// ================================ CSRF ================================
+
 // เพิ่มฟังก์ชันสำหรับสร้าง CSRF token
 const generateCSRFToken = () => {
     return (
@@ -19,10 +21,17 @@ const setCSRFToken = () => {
     return token;
 };
 
-// ดึง CSRF token จาก cookie
+// ดึง CSRF token จาก cookie หรือสร้างใหม่ถ้าไม่มี
 const getCSRFToken = () => {
-    return Cookies.get("csrf_token");
+    let token = Cookies.get("csrf_token");
+    if (!token) {
+        // ถ้าไม่มี token ให้สร้างใหม่
+        token = setCSRFToken();
+    }
+    return token;
 };
+
+// ================================ API ================================
 
 export const getAuthToken = () => {
     const authCookie = Cookies.get("auth_token");
