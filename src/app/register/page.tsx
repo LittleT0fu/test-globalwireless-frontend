@@ -82,7 +82,7 @@ export default function RegisterPage() {
                             label: "ตกลง",
                             onClick: () => {
                                 closePopup();
-                                router.push("/login");
+                                router.push("/");
                             },
                         },
                     ],
