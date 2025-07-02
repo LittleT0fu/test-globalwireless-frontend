@@ -172,7 +172,6 @@ const UserPopup = ({
     const detailsClassname = "bg-gray-200 dark:bg-gray-600 rounded-md p-2";
     const [isEdit, setIsEdit] = useState(false);
     const [editUser, setEditUser] = useState(user);
-
     const { user: authUser } = getAuthToken();
 
     const handleEdit = () => {
@@ -181,11 +180,24 @@ const UserPopup = ({
         }
     };
     const handleSave = async () => {
+        console.log("saving user...");
         if (!editUser.name || !editUser.email) {
             return;
         }
+        // check permission
+        if (!authUser.permission.includes("edit_user")) {
+            return;
+        }
 
-        const response = await updateUser(editUser, user.id);
+        let userToUpdate = { ...editUser };
+
+        if (editUser.email === user.email) {
+            // ลบ email parameter ออกจาก editUser ถ้า email ไม่เปลี่ยนแปลง
+            const { email, ...userWithoutEmail } = userToUpdate;
+            userToUpdate = userWithoutEmail as typeof userToUpdate;
+        }
+
+        const response = await updateUser(userToUpdate, user.id);
         if (!response.ok) {
             const errorData = await response.json();
             console.log(errorData);

@@ -8,7 +8,6 @@ import DOMPurify from "dompurify";
 //components
 import UserTable from "@/components/UserTable";
 import Popup from "@/components/Popup";
-import router from "next/router";
 
 export default function UsersPage() {
     const router = useRouter();
@@ -113,6 +112,7 @@ const AddUserButton = ({
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("");
+    const router = useRouter();
 
     useEffect(() => {
         const hasPermission =
@@ -132,6 +132,7 @@ const AddUserButton = ({
 
         try {
             const response = await createUser(sanitizedPayload);
+            console.log(response);
             if (response.ok) {
                 refetchUsers();
                 setNotification({
