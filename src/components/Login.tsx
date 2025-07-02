@@ -7,6 +7,7 @@ import Popup from "./Popup";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 import { login } from "@/services/api";
+import DOMPurify from "dompurify";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -45,6 +46,7 @@ export default function Login() {
         });
     };
 
+    // handle login
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -90,7 +92,11 @@ export default function Login() {
                 return;
             }
 
-            const response = await login(email, password);
+            // sanitize input
+            const sanitizedEmail = DOMPurify.sanitize(email);
+            const sanitizedPassword = DOMPurify.sanitize(password);
+
+            const response = await login(sanitizedEmail, sanitizedPassword);
 
             if (!response.ok) {
                 const errorData = await response.json();

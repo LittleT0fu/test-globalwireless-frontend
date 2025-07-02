@@ -6,6 +6,7 @@ import Popup from "@/components/Popup";
 import { FaEyeSlash } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
 import { register } from "@/services/api";
+import DOMPurify from "dompurify";
 
 export default function RegisterPage() {
     const [name, setName] = useState("");
@@ -64,10 +65,15 @@ export default function RegisterPage() {
             return;
         }
 
+        // sanitize input
+        const sanitizedName = DOMPurify.sanitize(name);
+        const sanitizedEmail = DOMPurify.sanitize(email);
+        const sanitizedPassword = DOMPurify.sanitize(password);
+
         const payload = {
-            name,
-            email,
-            password,
+            name: sanitizedName,
+            email: sanitizedEmail,
+            password: sanitizedPassword,
         };
 
         try {
@@ -82,6 +88,7 @@ export default function RegisterPage() {
                             label: "ตกลง",
                             onClick: () => {
                                 closePopup();
+                                // redirect to login page
                                 router.push("/");
                             },
                         },
@@ -91,7 +98,7 @@ export default function RegisterPage() {
                 const data = await response.json();
                 setPopup({
                     show: true,
-                    message: data.message,
+                    message: data.message || "Failed to register",
                     type: "error",
                     button: [
                         {
