@@ -47,6 +47,7 @@ export default function RegisterPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log("registering user...");
 
         if (password !== confirmPassword) {
             setPopup({
@@ -79,6 +80,7 @@ export default function RegisterPage() {
         try {
             const response = await register(payload);
             if (response.ok) {
+                console.log("register success");
                 setPopup({
                     show: true,
                     message: "Register successfully",
@@ -96,9 +98,14 @@ export default function RegisterPage() {
                 });
             } else {
                 const data = await response.json();
+                console.log("register failed");
                 setPopup({
                     show: true,
-                    message: data.message || "Failed to register",
+                    message: Array.isArray(data.message)
+                        ? data.message
+                              .map((item: any) => item.message)
+                              .join(", ")
+                        : data.message || "Failed to register",
                     type: "error",
                     button: [
                         {
@@ -112,6 +119,19 @@ export default function RegisterPage() {
             }
         } catch (error) {
             console.error(error);
+            setPopup({
+                show: true,
+                message: "An error occurred while registering",
+                type: "error",
+                button: [
+                    {
+                        label: "ตกลง",
+                        onClick: () => {
+                            closePopup();
+                        },
+                    },
+                ],
+            });
         }
     };
 
