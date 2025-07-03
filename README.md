@@ -26,11 +26,9 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 1. ติดตั้ง dependencies:
 
 ```bash
-npm install
+npm clean install
 # หรือ
-yarn install
-# หรือ
-pnpm install
+npm ci
 ```
 
 #### ความต้องการเบื้องต้น
